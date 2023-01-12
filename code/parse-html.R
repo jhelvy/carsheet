@@ -1,23 +1,24 @@
 library(tidyverse)
 library(rvest)
-library(chromote)
 
-get_page_table <- function(b) {
-    html <- b$Runtime$evaluate('document.documentElement.outerHTML')$result$value
-    table <- read_html(html) %>% 
+get_page_table <- function(path) {
+    table <- read_html(path) %>%
         html_nodes('table') %>%
         html_table(header = TRUE, trim = TRUE)
     return(table)
 }
 
-# Open browser
+root <- '/Users/jhelvy/Desktop/html/'
+files <- list.files(root)
+pages <- paste0(root, files)
 
-b <- ChromoteSession$new()
-b$view()
+data <- list()
+for (i in 1:length(pages)) {
+    cat(i, '\n')
+    data[[i]] <- get_page_table(pages[i])[[2]] %>%
+        janitor::clean_names()
+}
 
-# Navigate to main page 
+df <- do.call(rbind, data)
 
-b$Page$navigate('https://carsheet.io/')
-
-table <- get_page_table(b)
-names(table[[2]])
+arrow::write_parquet(df, file.path('data-raw', 'data.parquet'))
