@@ -8,7 +8,7 @@ df %>%
     summarise(median(vehicle_height_in, na.rm = TRUE)) %>%
     data.frame()
 
-temp %>%
+df %>%
     filter(body_style == 'Pickup Truck') %>%
     filter(vehicle_height_in < 90) %>%
     group_by(year) %>%
