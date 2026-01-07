@@ -2,27 +2,17 @@ library(tidyverse)
 library(rvest)
 library(data.table)
 
+# Function to extract the main table from a page
+
 get_page_table <- function(path) {
   table <- read_html(path) %>%
     html_nodes("table") %>%
     html_table(header = TRUE, trim = TRUE)
+  table <- table[[2]] %>%
+    janitor::clean_names()
+  table$model <- as.character(table$model)
   return(table)
 }
-
-root <- "/Users/jhelvy/Desktop/html/"
-files <- list.files(root)
-pages <- paste0(root, files)
-
-data <- list()
-for (i in 1:length(pages)) {
-  cat(i, "\n")
-  data[[i]] <- get_page_table(pages[i])[[2]] %>%
-    janitor::clean_names()
-}
-
-df <- rbindlist(data)
-
-# Fix formatting
 
 # Function that converts columns encoded with "Yes" / "No" to T/F
 
@@ -35,6 +25,17 @@ fix_binary <- function(data, var) {
     )
   return(data)
 }
+root <- "/Users/jhelvy/Desktop/carsheet-01-26/"
+pages <- list.files(root, full.names = TRUE)
+
+data <- list()
+for (i in 1:length(pages)) {
+  if (i %% 10 == 0) {
+    cat(i, "\n")
+  }
+  data[[i]] <- get_page_table(pages[i])
+}
+df <- rbindlist(data)
 
 df <- df %>%
   separate(
@@ -56,7 +57,6 @@ df <- df %>%
     msrp = parse_number(msrp),
     invoice_price = parse_number(invoice_price),
     used_new_price = parse_number(used_new_price),
-    used_price = parse_number(used_price),
     vehicle_length_in = parse_number(vehicle_length),
     vehicle_width_in = parse_number(vehicle_width),
     vehicle_height_in = parse_number(vehicle_height),
@@ -89,7 +89,6 @@ df <- df %>%
     msrp,
     invoice_price,
     used_new_price,
-    used_price,
     body_size,
     body_style,
     curb_weight_lbs,
@@ -125,9 +124,7 @@ df <- df %>%
     warranty_drivetrain_years,
     warranty_drivetrain_miles,
     warranty_basic_years,
-    warranty_basic_miles,
-    hybrid_electric_components_years,
-    hybrid_electric_components_miles
+    warranty_basic_miles
   )
 
 # Identify powertrain
@@ -151,7 +148,8 @@ df <- df %>%
   )
 
 df %>%
-  filter(powertrain == 'hev') %>%
+  filter(powertrain == 'phev') %>%
+  # filter(powertrain == 'hev') %>%
   distinct(model, electric_range_mi) %>%
   arrange(electric_range_mi)
 

@@ -1,10 +1,17 @@
 # -*- coding: utf-8 -*-
-
 import os
 import sys
 import time
 from selenium import webdriver
 from selenium.webdriver.chrome.service import Service
+from selenium.webdriver.chrome.options import Options
+
+# Open Chrome to carsheet.io
+chromedriverPath = '/Users/jhelvy/Documents/chromedriver-mac-arm64/chromedriver'
+service = Service(executable_path=chromedriverPath)
+
+# Launch the driver
+driver = webdriver.Chrome(service=service)
 
 # Function for saving the html
 def save_page(i):
@@ -14,10 +21,7 @@ def save_page(i):
     with open(filePath, 'w') as f:
         f.write(str(html.encode('UTF-8')))
 
-# Open Chrome to carsheet.io
-chromedriverPath = '/Users/jhelvy/Documents/chromedriver-mac-x64/chromedriver'
-service = Service(executable_path=chromedriverPath)
-driver = webdriver.Chrome(service=service)
+# Navigate to main page
 driver.get('https://carsheet.io/')
 
 # Manual Adjustments:
@@ -32,7 +36,7 @@ save_page(1)
 # Now loop through each page and get and save the page source html
 
 page_path = '//*[@id="carsheet_next"]/a'
-for i in range(1, 654):
+for i in range(1, 1307):
     # Click the next button using the updated method
     driver.find_element("xpath", page_path).click()
     time.sleep(10)  # Let the data load
