@@ -25,7 +25,7 @@ fix_binary <- function(data, var) {
     )
   return(data)
 }
-root <- "/Users/jhelvy/Desktop/carsheet-01-26/"
+root <- "/Users/jhelvy/Desktop/html/"
 pages <- list.files(root, full.names = TRUE)
 
 data <- list()
